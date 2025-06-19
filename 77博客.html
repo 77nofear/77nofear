@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>阿七的博客</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#FF6B9B', // 可爱粉色
+            secondary: '#9D65C9', // 可爱紫色
+            accent: '#FFD166', // 可爱黄色
+            dark: '#2D3142', // 深色文本
+            light: '#F7F9FC'  // 浅色背景
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          backgroundImage: {
+            'cute-pattern': "url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23FF6B9B\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')"
+          }
+        },
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .hover-lift {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+      }
+      .gradient-bg {
+        background: linear-gradient(135deg, rgba(255, 107, 155, 0.8) 0%, rgba(157, 101, 201, 0.8) 100%);
+        backdrop-filter: blur(10px); /* 毛玻璃效果 */
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      }
+      .player-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 1rem;
+        cursor: pointer; /* 鼠标悬停提示 */
+      }
+      .player-card img {
+        transition: transform 0.5s ease;
+      }
+      .player-card:hover img {
+        transform: scale(1.05);
+      }
+      .gemini-moment {
+        border-left: 4px solid #FFD166;
+        padding-left: 1rem;
+        background-color: rgba(255, 209, 102, 0.05);
+      }
+      .game-journal {
+        border-radius: 1rem;
+        background-color: rgba(157, 101, 201, 0.05);
+      }
+      .cute-border {
+        border: 2px dashed #FF6B9B;
+      }
+      .cute-shadow {
+        box-shadow: 0 4px 15px rgba(255, 107, 155, 0.2);
+      }
+    }
+  </style>
+</head>
+<body class="font-inter bg-light bg-cute-pattern text-dark">
+  <!-- 导航栏 -->
+  <header class="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-sm shadow-sm z-50 transition-all duration-300" id="navbar">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <a href="#" class="text-primary font-bold text-xl flex items-center">
+            <i class="fa fa-heart mr-2"></i>
+            <span>阿七的博客</span>
+          </a>
+        </div>
+        <nav class="hidden md:flex space-x-8">
+          <a href="#home" class="text-dark hover:text-primary transition-colors duration-200 font-medium">首页</a>
+          <a href="#players" class="text-dark hover:text-primary transition-colors duration-200 font-medium">选手风采</a>
+          <a href="#gemini" class="text-dark hover:text-primary transition-colors duration-200 font-medium">直播精彩瞬间</a>
+          <a href="#journal" class="text-dark hover:text-primary transition-colors duration-200 font-medium">奶茶日记</a>
+          <a href="#gallery" class="text-dark hover:text-primary transition-colors duration-200 font-medium">精彩视频图集</a>
+        </nav>
+        <div class="flex items-center">
+          <button class="hidden md:block bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-full transition-colors duration-200 shadow-md hover:shadow-lg cute-shadow">
+            <i class="fa fa-paper-plane mr-1"></i> 联系我
+          </button>
+          <button class="md:hidden text-dark" id="mobile-menu-button">
+            <i class="fa fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 移动端菜单 -->
+    <div class="md:hidden hidden bg-white shadow-lg absolute w-full" id="mobile-menu">
+      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-dark hover:bg-primary/10 hover:text-primary">首页</a>
+        <a href="#players" class="block px-3 py-2 rounded-md text-base font-medium text-dark hover:bg-primary/10 hover:text-primary">选手风采</a>
+        <a href="#gemini" class="block px-3 py-2 rounded-md text-base font-medium text-dark hover:bg-primary/10 hover:text-primary">直播精彩瞬间</a>
+        <a href="#journal" class="block px-3 py-2 rounded-md text-base font-medium text-dark hover:bg-primary/10 hover:text-primary">奶茶日记</a>
+        <a href="#gallery" class="block px-3 py-2 rounded-md text-base font-medium text-dark hover:bg-primary/10 hover:text-primary">精彩视频图集</a>
+        <a href="#" class="block px-3 py-2 rounded-md text-base font-medium bg-primary/10 text-primary">联系我</a>
+      </div>
+    </div>
+  </header>
+  <!-- 英雄区 -->
+  <section id="home" class="pt-24 pb-16 md:pt-32 md:pb-24 gradient-bg text-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center">
+        <div class="md:w-1/2 mb-10 md:mb-0">
+          <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight text-shadow">
+            记录<span class="text-accent">KPL</span>每一个心动瞬间
+          </h1>
+          <p class="mt-6 text-lg md:text-xl opacity-90 max-w-xl">
+            作为KPL粉丝，我会在这里分享各种精彩瞬间以及我的奶茶日记。欢迎和我一起来追竞！
+          </p>
+          <div class="mt-8 flex flex-wrap gap-4">
+            <a href="#players" class="bg-white text-primary px-6 py-3 rounded-full font-medium hover:bg-gray-100 transition-colors duration-200 shadow-lg hover:shadow-xl cute-shadow">
+              选手风采 <i class="fa fa-users ml-1"></i>
+            </a>
+            <a href="#gemini" class="bg-transparent border-2 border-white text-white px-6 py-3 rounded-full font-medium hover:bg-white/10 transition-colors duration-200">
+              直播精彩瞬间 <i class="fa fa-laughing ml-1"></i>
+            </a>
+          </div>
+        </div>
+        <div class="md:w-1/2 flex justify-center">
+          <!-- 首张图片背景优化：添加容器设置背景色 -->
+          <div class="relative rounded-2xl shadow-2xl overflow-hidden" style="background-color: rgba(255, 107, 155, 0.1);">
+            <img src="01.jpg" alt="KPL粉丝" class="rounded-2xl max-w-full h-auto hover-lift cute-shadow">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- 选手风采 -->
+  <section id="players" class="py-16 bg-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark">
+          选手<span class="text-primary">风采</span>
+        </h2>
+        <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+          收集我最喜欢的选手们的精彩瞬间和日常生活照
+        </p>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <!-- 选手卡片1：添加超链接，图片可替换为自定义图片 -->
+        <a href="player-detail01.html?id=无畏" class="player-card bg-white rounded-xl overflow-hidden shadow-md card-hover cute-shadow">
+          <img src="02.jpg" alt="无畏选手" class="w-full h-80 object-cover">
+          <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+            <h3 class="text-xl font-bold text-white">无畏</h3>
+            <p class="text-white/80 text-sm">北京JDG| 游走</p>
+          </div>
+        </a>
+        
+        <!-- 选手卡片2：添加超链接，图片可替换为自定义图片 -->
+        <a href="player-detail.html?id=九尾" class="player-card bg-white rounded-xl overflow-hidden shadow-md card-hover cute-shadow">
+          <img src="03.jpg" alt="九尾选手" class="w-full h-80 object-cover">
+          <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+            <h3 class="text-xl font-bold text-white">九尾</h3>
+            <p class="text-white/80 text-sm">南京Hero久竞 | 中路</p>
+          </div>
+        </a>
+        
+        <!-- 选手卡片3：添加超链接，图片可替换为自定义图片 -->
+        <a href="player-detail.html?id=一诺" class="player-card bg-white rounded-xl overflow-hidden shadow-md card-hover cute-shadow">
+          <img src="04.jpg" alt="一诺选手" class="w-full h-80 object-cover">
+          <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+            <h3 class="text-xl font-bold text-white">一诺</h3>
+            <p class="text-white/80 text-sm">成都AG超玩会| 发育路</p>
+          </div>
+        </a>
+        
+        <!-- 选手卡片4：添加超链接，图片可替换为自定义图片 -->
+        <a href="player-detail.html?id=清融" class="player-card bg-white rounded-xl overflow-hidden shadow-md card-hover cute-shadow">
+          <img src="05.jpg" alt="清融选手" class="w-full h-80 object-cover">
+          <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+            <h3 class="text-xl font-bold text-white">清融</h3>
+            <p class="text-white/80 text-sm">北京JDG | 中路</p>
+          </div>
+        </a>
+        
+        <!-- 选手卡片5：添加超链接，图片可替换为自定义图片 -->
+        <a href="player-detail.html?id=钎城" class="player-card bg-white rounded-xl overflow-hidden shadow-md card-hover cute-shadow">
+          <img src="06.jpg" alt="钎城选手" class="w-full h-80 object-cover">
+          <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+            <h3 class="text-xl font-bold text-white">钎城</h3>
+            <p class="text-white/80 text-sm">深圳DYG| 发育路</p>
+          </div>
+        </a>
+        
+        <!-- 选手卡片6：添加超链接，图片可替换为自定义图片 -->
+        <a href="player-detail.html?id=久酷" class="player-card bg-white rounded-xl overflow-hidden shadow-md card-hover cute-shadow">
+          <img src="07.jpg" alt="久酷选手" class="w-full h-80 object-cover">
+          <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+            <h3 class="text-xl font-bold text-white">久酷</h3>
+            <p class="text-white/80 text-sm">西安WE| 游走</p>
+          </div>
+        </a>
+        
+        <!-- 选手卡片7：添加超链接，图片可替换为自定义图片 -->
+        <a href="player-detail.html?id=钟意" class="player-card bg-white rounded-xl overflow-hidden shadow-md card-hover cute-shadow">
+          <img src="08.jpg" alt="钟意选手" class="w-full h-80 object-cover">
+          <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+            <h3 class="text-xl font-bold text-white">钟意</h3>
+            <p class="text-white/80 text-sm">成都AG超玩会 | 打野</p>
+          </div>
+        </a>
+        
+        <!-- 选手卡片8：添加超链接，图片可替换为自定义图片 -->
+        <a href="player-detail.html?id=绝意" class="player-card bg-white rounded-xl overflow-hidden shadow-md card-hover cute-shadow">
+          <img src="09.jpg" alt="绝意选手" class="w-full h-80 object-cover">
+          <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+            <h3 class="text-xl font-bold text-white">绝意</h3>
+            <p class="text-white/80 text-sm">北京JDG | 发育路</p>
+          </div>
+        </a>
+      </div>
+      <div class="text-center mt-12">
+        <!-- 查看更多选手链接优化 -->
+        <a href="players-list.html" class="inline-flex items-center px-5 py-3 border border-primary text-primary font-medium rounded-full hover:bg-primary hover:text-white transition-colors duration-200 cute-shadow">
+          查看更多选手图片 <i class="fa fa-long-arrow-right ml-2"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+  <!-- Gemini搞笑瞬间 -->
+  <section id="gemini" class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark">
+          Gemini<span class="text-primary">搞笑瞬间</span>
+        </h2>
+        <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+          收集Gemini老师直播间的那些让人笑到肚子痛的瞬间
+        </p>
+      </div>
+      <div class="space-y-8">
+        <!-- 搞笑瞬间1 -->
+        <div class="gemini-moment p-6 rounded-lg card-hover cute-shadow">
+          <div class="flex items-center mb-4">
+            <img src="https://picsum.photos/seed/gemini1/100/100" alt="Gemini老师" class="w-16 h-16 rounded-full mr-4 border-2 border-primary">
+            <div>
+              <h3 class="text-xl font-bold text-dark">Gemini老师的"战术指挥"</h3>
+              <p class="text-gray-500 text-sm">2025年5月20日</p>
+            </div>
+          </div>
+          <div class="relative rounded-lg overflow-hidden mb-4">
+            <img src="https://picsum.photos/seed/geminimoment1/800/450" alt="Gemini老师直播截图" class="w-full h-auto rounded-lg">
+            <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+              <button class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center">
+                <i class="fa fa-play text-2xl"></i>
+              </button>
+            </div>
+          </div>
+          <p class="text-gray-700 mb-4">
+            在最近的一次直播中，Gemini老师在解说比赛时突然开始模仿选手的操作，那夸张的手势和表情简直太搞笑了！他一边大喊"冲啊！不要怂！"一边用鼠标在空中乱挥，结果不小心把咖啡打翻了，手忙脚乱的样子让观众们笑翻了。
+          </p>
+          <div class="flex justify-between items-center">
+            <div class="flex space-x-3">
+              <button class="flex items-center text-gray-500 hover:text-primary transition-colors">
+                <i class="fa fa-thumbs-up mr-1"></i>
+                <span>1,245</span>
+              </button>
+              <button class="flex items-center text-gray-500 hover:text-primary transition-colors">
+                <i class="fa fa-comment mr-1"></i>
+                <span>86</span>
+              </button>
+              <button class="flex items-center text-gray-500 hover:text-primary transition-colors">
+                <i class="fa fa-share-alt mr-1"></i>
+                <span>42</span>
+              </button>
+            </div>
+            <a href="gemini-moment-1.html" class="text-primary hover:text-primary/80 font-medium flex items-center">
+              查看详情 <i class="fa fa-arrow-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+        <!-- 搞笑瞬间2 -->
+        <div class="gemini-moment p-6 rounded-lg card-hover cute-shadow">
+          <div class="flex items-center mb-4">
+            <img src="https://picsum.photos/seed/gemini2/100/100" alt="Gemini老师" class="w-16 h-16 rounded-full mr-4 border-2 border-primary">
+            <div>
+              <h3 class="text-xl font-bold text-dark">Gemini老师的"神预判"</h3>
+              <p class="text-gray-500 text-sm">2025年5月15日</p>
+            </div>
+          </div>
+          <div class="relative rounded-lg overflow-hidden mb-4">
+            <img src="https://picsum.photos/seed/geminimoment2/800/450" alt="Gemini老师直播截图" class="w-full h-auto rounded-lg">
+            <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+              <button class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center">
+                <i class="fa fa-play text-2xl"></i>
+              </button>
+            </div>
+          </div>
+          <p class="text-gray-700 mb-4">
+            这是我最喜欢的一个Gemini老师直播片段。当时比赛进行到关键时刻，Gemini老师信誓旦旦地说："我预判这个打野肯定来抓中路！"结果话音刚落，敌方打野就从另一个方向出现，把Gemini老师支持的选手抓了个正着。他当时那尴尬的表情和快速转移话题的样子，真的太可爱了！
+          </p>
+          <div class="flex justify-between items-center">
+            <div class="flex space-x-3">
+              <button class="flex items-center text-gray-500 hover:text-primary transition-colors">
+                <i class="fa fa-thumbs-up mr-1"></i>
+                <span>987</span>
+              </button>
+              <button class="flex items-center text-gray-500 hover:text-primary transition-colors">
+                <i class="fa fa-comment mr-1"></i>
+                <span>63</span>
+              </button>
+              <button class="flex items-center text-gray-500 hover:text-primary transition-colors">
+                <i class="fa fa-share-alt mr-1"></i>
+                <span>35</span>
+              </button>
+            </div>
+            <a href="gemini-moment-2.html" class="text-primary hover:text-primary/80 font-medium flex items-center">
+              查看详情 <i class="fa fa-arrow-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+        <!-- 搞笑瞬间3 -->
+        <div class="gemini-moment p-6 rounded-lg card-hover cute-shadow">
+          <div class="flex items-center mb-4">
+            <img src="https://picsum.photos/seed/gemini3/100/100" alt="Gemini老师" class="w-16 h-16 rounded-full mr-4 border-2 border-primary">
+            <div>
+              <h3 class="text-xl font-bold text-dark">Gemini老师的"口误合集"</h3>
+              <p class="text-gray-500 text-sm">2025年5月10日</p>
+            </div>
+          </div>
+          <div class="relative rounded-lg overflow-hidden mb-4">
+            <img src="https://picsum.photos/seed/geminimoment3/800/450" alt="Gemini老师直播截图" class="w-full h-auto rounded-lg">
+            <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+              <button class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center">
+                <i class="fa fa-play text-2xl"></i>
+              </button>
+            </div>
+          </div>
+          <p class="text-gray-700 mb-4">
+            整理了Gemini老师最近直播中的各种口误，从把选手名字叫错到把技能名称说错，简直太搞笑了！其中最经典的是他把"澜"说成"澜澜"，然后自己笑了半天，还说"这个英雄的名字怎么这么难念，我感觉我像在叫宝宝的小名"。这个片段真的让我笑了一整天！
+          </p>
+          <div class="flex justify-between items-center">
+            <div class="flex space-x-3">
+              <button class="flex items-center text-gray-500 hover:text-primary transition-colors">
+                <i class="fa fa-thumbs-up mr-1"></i>
+                <span>1,562</span>
+              </button>
+              <button class="flex items-center text-gray-500 hover:text-primary transition-colors">
+                <i class="fa fa-comment mr-1"></i>
+                <span>124</span>
+              </button>
+              <button class="flex items-center text-gray-500 hover:text-primary transition-colors">
+                <i class="fa fa-share-alt mr-1"></i>
+                <span>58</span>
+              </button>
+            </div>
+            <a href="gemini-moment-3.html" class="text-primary hover:text-primary/80 font-medium flex items-center">
+              查看详情 <i class="fa fa-arrow-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="text-center mt-12">
+        <a href="gemini-moments.html" class="inline-flex items-center px-5 py-3 border border-primary text-primary font-medium rounded-full hover:bg-primary hover:text-white transition-colors duration-200 cute-shadow">
+          查看更多搞笑瞬间 <i class="fa fa-long-arrow-right ml-2"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+  <!-- 王者心得 -->
+  <section id="journal" class="py-16 bg-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark">
+          王者<span class="text-primary">心得</span>
+        </h2>
+        <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+          分享我的王者之路和一些游戏心得
+        </p>
+      </div>
+      <div class="space-y-8">
+        <!-- 王者心得1 -->
+        <div class="game-journal p-6 rounded-xl card-hover cute-shadow">
+          <div class="flex flex-col md:flex-row gap-6">
+            <div class="md:w-1/3">
+              <img src="https://picsum.photos/seed/moments1/600/400" alt="王者心得配图" class="w-full h-48 object-cover rounded-lg">
+            </div>
+            <div class="md:w-2/3">
+              <h3 class="text-xl font-bold text-dark mb-2">我是如何从青铜打到王者的</h3>
+              <p class="text-gray-500 text-sm mb-3">
+                <span class="flex items-center inline-flex mr-4">
+                  <i class="fa fa-calendar mr-1"></i>
+                  2025年6月10日
+                </span>
+                <span class="flex items-center inline-flex">
+                  <i class="fa fa-eye mr-1"></i>
+                  阅读 2,345
+                </span>
+              </p>
+              <p class="text-gray-700 mb-4">
+                作为一个从青铜一步步打上王者的玩家，我想分享一下我的心路历程和一些实用的上分技巧。从最开始的懵懂无知，到后来逐渐掌握游戏节奏，这中间经历了很多次失败和反思。我会从英雄选择、团队配合、意识培养等方面详细分享我的经验，希望能帮助到还在低段位挣扎的小伙伴们。
+              </p>
+              <a href="game-journal-1.html" class="text-primary hover:text-primary/80 font-medium flex items-center">
+                阅读全文 <i class="fa fa-arrow-right ml-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        <!-- 王者心得2 -->
+        <div class="game-journal p-6 rounded-xl card-hover cute-shadow">
+          <div class="flex flex-col md:flex-row gap-6">
+            <div class="md:w-1/3">
+              <img src="https://picsum.photos/seed/moments2/600/400" alt="王者心得配图" class="w-full h-48 object-cover rounded-lg">
+            </div>
+            <div class="md:w-2/3">
+              <h3 class="text-xl font-bold text-dark mb-2">我最喜欢的英雄：貂蝉</h3>
+              <p class="text-gray-500 text-sm mb-3">
+                <span class="flex items-center inline-flex mr-4">
+                  <i class="fa fa-calendar mr-1"></i>
+                  2025年6月5日
+                </span>
+                <span class="flex items-center inline-flex">
+                  <i class="fa fa-eye mr-1"></i>
+                  阅读 1,876
+                </span>
+              </p>
+              <p class="text-gray-700 mb-4">
+                在所有英雄中，我最喜欢玩的就是貂蝉。她的机动性和持续输出能力让她在团战中非常强势。这篇文章我会分享我的貂蝉玩法心得，包括技能连招、出装思路、对线技巧以及团战定位。我还会分析一些貂蝉的常见误区，希望能帮助大家更好地使用这个英雄。
+              </p>
+              <a href="game-journal-2.html" class="text-primary hover:text-primary/80 font-medium flex items-center">
+                阅读全文 <i class="fa fa-arrow-right ml-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        <!-- 王者心得3 -->
+        <div class="game-journal p-6 rounded-xl card-hover cute-shadow">
+          <div class="flex flex-col md:flex-row gap-6">
+            <div class="md:w-1/3">
+              <img src="https://picsum.photos/seed/moments3/600/400" alt="王者心得配图" class="w-full h-48 object-cover rounded-lg">
+            </div>
+            <div class="md:w-2/3">
+              <h3 class="text-xl font-bold text-dark mb-2">KPL观赛笔记：从职业比赛中学到的技巧</h3>
+              <p class="text-gray-500 text-sm mb-3">
+                <span class="flex items-center inline-flex mr-4">
+                  <i class="fa fa-calendar mr-1"></i>
+                  2025年5月28日
+                </span>
+                <span class="flex items-center inline-flex">
+                  <i class="fa fa-eye mr-1"></i>
+                  阅读 2,109
+                </span>
+              </p>
+              <p class="text-gray-700 mb-4">
+                作为一个KPL的忠实观众，我经常从职业比赛中学到很多实用的技巧和思路。在这篇文章中，我会分享一些从职业比赛中学到的实用技巧，比如视野控制、团战站位、兵线运营等等。这些技巧不仅适用于高分段，也可以帮助低分段的玩家提升游戏理解。
+              </p>
+              <a href="game-journal-3.html" class="text-primary hover:text-primary/80 font-medium flex items-center">
+                阅读全文 <i class="fa fa-arrow-right ml-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text-center mt-12">
+        <a href="game-journals.html" class="inline-flex items-center px-5 py-3 border border-primary text-primary font-medium rounded-full hover:bg-primary hover:text-white transition-colors duration-200 cute-shadow">
+          查看更多游戏心得 <i class="fa fa-long-arrow-right ml-2"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+  <!-- 精彩图集 -->
+  <section id="gallery" class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark">
+          精彩<span class="text-primary">图集</span>
+        </h2>
+        <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+          收集KPL比赛和选手们的精彩瞬间
+        </p>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div class="overflow-hidden rounded-lg hover-lift cute-shadow">
+          <img src="https://picsum.photos/seed/kplpic1/600/600" alt="KPL比赛现场" class="w-full h-64 object-cover rounded-lg">
+        </div>
+        <div class="overflow-hidden rounded-lg hover-lift cute-shadow">
+          <img src="https://picsum.photos/seed/kplpic2/600/600" alt="选手合影" class="w-full h-64 object-cover rounded-lg">
+        </div>
+        <div class="overflow-hidden rounded-lg hover-lift cute-shadow">
+          <img src="https://picsum.photos/seed/kplpic3/600/600" alt="Fly选手比赛瞬间" class="w-full h-64 object-cover rounded-lg">
+        </div>
+        <div class="overflow-hidden rounded-lg hover-lift cute-shadow">
+          <img src="https://picsum.photos/seed/kplpic4/600/600" alt="Cat选手比赛瞬间" class="w-full h-64 object-cover rounded-lg">
+        </div>
+        <div class="overflow-hidden rounded-lg hover-lift cute-shadow">
+          <img src="https://picsum.photos/seed/kplpic5/600/600" alt="花海选手比赛瞬间" class="w-full h-64 object-cover rounded-lg">
+        </div>
+        <div class="overflow-hidden rounded-lg hover-lift cute-shadow">
+          <img src="https://picsum.photos/seed/kplpic6/600/600" alt="Gemini老师解说现场" class="w-full h-64 object-cover rounded-lg">
+        </div>
+        <div class="overflow-hidden rounded-lg hover-lift cute-shadow">
+          <img src="https://picsum.photos/seed/kplpic7/600/600" alt="选手签名会" class="w-full h-64 object-cover rounded-lg">
+        </div>
+        <div class="overflow-hidden rounded-lg hover-lift cute-shadow">
+          <img src="https://picsum.photos/seed/kplpic8/600/600" alt="KPL总决赛现场" class="w-full h-64 object-cover rounded-lg">
+        </div>
+      </div>
+      <div class="text-center mt-12">
+        <a href="gallery.html" class="inline-flex items-center px-5 py-3 border border-primary text-primary font-medium rounded-full hover:bg-primary hover:text-white transition-colors duration-200 cute-shadow">
+          查看更多精彩图片 <i class="fa fa-long-arrow-right ml-2"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+  <!-- 页脚 -->
+  <footer class="bg-dark text-white py-12">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+          <h3 class="text-xl font-bold mb-4">我的KPL追星日记</h3>
+          <p class="text-gray-400 mb-4">
+            记录KPL的每一个心动瞬间以及奶茶日记。
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+              <i class="fa fa-weibo text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+              <i class="fa fa-wechat text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+              <i class="fa fa-bilibili text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+              <i class="fa fa-youtube-play text-xl"></i>
+            </a>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold mb-4">快速链接</h3>
+          <ul class="space-y-2">
+            <li><a href="#home" class="text-gray-400 hover:text-primary transition-colors">首页</a></li>
+            <li><a href="#players" class="text-gray-400 hover:text-primary transition-colors">选手风采</a></li>
+            <li><a href="#gemini" class="text-gray-400 hover:text-primary transition-colors">Gemini搞笑瞬间</a></li>
+            <li><a href="#journal" class="text-gray-400 hover:text-primary transition-colors">王者心得</a></li>
+            <li><a href="#gallery" class="text-gray-400 hover:text-primary transition-colors">精彩图集</a></li>
+          </ul>
+        </div>
+        <div>
+          <!-- 页脚右侧内容可自行补充 -->
+        </div>
+      </div>
+      <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500">
+        <p>&copy; 2025 阿七的博客. 保留所有权利.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // 移动端菜单切换
+    document.getElementById('mobile-menu-button').addEventListener('click', function() {
+      const mobileMenu = document.getElementById('mobile-menu');
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    // 导航栏滚动效果
+    window.addEventListener('scroll', function() {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('shadow-md');
+        navbar.classList.remove('shadow-sm');
+      } else {
+        navbar.classList.remove('shadow-md');
+        navbar.classList.add('shadow-sm');
+      }
+    });
+
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          document.getElementById('mobile-menu').classList.add('hidden');
+          
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
