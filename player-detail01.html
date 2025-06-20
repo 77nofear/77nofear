@@ -31,7 +31,7 @@
       .video-cover {
         width: 100%;
         height: 240px;
-        object-fit: contain; /* 关键修改：保持完整画面，不裁剪 */
+        object-fit: contain; /* 保持完整画面，不裁剪 */
         object-position: center; 
         background: #f9f9f9;
       }
@@ -153,12 +153,12 @@
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- 左侧视频：无畏_1 -->
+          <!-- 左侧视频：无畏_1（直接放在同级目录，无videos文件夹） -->
           <div class="bg-white rounded-xl overflow-hidden shadow-md card-hover cute-shadow">
             <div class="relative">
               <img src="13.jpg" alt="无畏高光时刻" class="video-cover">
               <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">05:32</div>
-              <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 cursor-pointer" onclick="playVideo('videos/无畏_1.mp4')">
+              <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 cursor-pointer" onclick="playVideo('无畏_1.mp4')">
                 <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl">
                   <i class="fa fa-play"></i>
                 </div>
@@ -174,12 +174,12 @@
             </div>
           </div>
           
-          <!-- 右侧视频：无畏_2 -->
+          <!-- 右侧视频：无畏_2（直接放在同级目录，无videos文件夹） -->
           <div class="bg-white rounded-xl overflow-hidden shadow-md card-hover cute-shadow">
             <div class="relative">
               <img src="14.jpg" alt="无畏采访" class="video-cover">
               <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">12:45</div>
-              <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 cursor-pointer" onclick="playVideo('videos/无畏_2.mp4')">
+              <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 cursor-pointer" onclick="playVideo('无畏_2.mp4')">
                 <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl">
                   <i class="fa fa-play"></i>
                 </div>
@@ -267,7 +267,7 @@
     const closeVideo = document.getElementById('closeVideo');
 
     function playVideo(videoPath) {
-      player.src = videoPath;
+      player.src = videoPath; // 直接使用文件名（与HTML同级）
       player.load();
       player.play().catch(e => {
         console.error("视频播放失败:", e);
