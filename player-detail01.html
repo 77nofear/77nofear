@@ -158,7 +158,7 @@
             <div class="relative">
               <img src="13.jpg" alt="无畏高光时刻" class="video-cover">
               <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">05:32</div>
-              <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 cursor-pointer" onclick="playVideo('./无畏_1.mp4')">
+              <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 cursor-pointer" onclick="playVideo('无畏_1.mp4')">
                 <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl">
                   <i class="fa fa-play"></i>
                 </div>
@@ -179,7 +179,7 @@
             <div class="relative">
               <img src="14.jpg" alt="无畏采访" class="video-cover">
               <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">12:45</div>
-              <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 cursor-pointer" onclick="playVideo('./无畏_2.mp4')">
+              <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 cursor-pointer" onclick="playVideo('无畏_2.mp4')">
                 <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl">
                   <i class="fa fa-play"></i>
                 </div>
@@ -218,6 +218,10 @@
         <video id="player" controls class="w-full h-full">
           您的浏览器不支持视频播放，请确保视频文件格式为MP4且路径正确。
         </video>
+      </div>
+      <!-- 加载指示器 -->
+      <div id="videoLoader" class="absolute inset-0 flex items-center justify-center bg-black/60 hidden">
+        <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     </div>
   </div>
@@ -261,51 +265,104 @@
       });
     });
 
-    // 视频播放功能（增强路径解析）
+    // 视频播放功能（增强版）
     const videoModal = document.getElementById('videoModal');
     const player = document.getElementById('player');
     const closeVideo = document.getElementById('closeVideo');
+    const videoLoader = document.getElementById('videoLoader');
 
     function playVideo(videoPath) {
       try {
-        // 显示加载状态（可选）
-        player.src = videoPath;
-        player.load(); // 预加载视频
-        player.play().then(() => {
-          videoModal.classList.remove('hidden');
-          document.body.style.overflow = 'hidden';
-        }).catch(error => {
-          console.error('视频播放失败，可能原因：', error);
-          alert('视频加载失败，请检查：\n1. 视频文件是否与HTML在同一目录\n2. 视频格式是否为MP4\n3. 文件名是否正确（如：无畏_1.mp4）');
+        // 显示加载指示器
+        videoLoader.classList.remove('hidden');
+        
+        // 构建完整URL（解决相对路径问题）
+        const baseUrl = new URL(window.location.href);
+        const fullVideoUrl = new URL(videoPath, baseUrl).href;
+        
+        console.log('尝试加载视频:', fullVideoUrl);
+        
+        // 设置视频源并尝试播放
+        player.src = fullVideoUrl;
+        player.load();
+        
+        // 监听视频元数据加载完成
+        player.addEventListener('loadedmetadata', function() {
+          console.log('视频元数据加载成功，时长:', player.duration, '秒');
+          videoLoader.classList.add('hidden');
+          player.play().then(() => {
+            videoModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+          }).catch(error => {
+            handleVideoError(error);
+          });
         });
+        
+        // 监听加载错误
+        player.addEventListener('error', handleVideoError);
+        
+        // 设置超时处理
+        setTimeout(() => {
+          if (player.readyState < 2) { // 未加载足够数据
+            handleVideoError(new Error('视频加载超时'));
+          }
+        }, 10000); // 10秒超时
+        
       } catch (error) {
-        console.error('视频路径错误：', error);
-        alert('视频路径错误，请确保视频文件与HTML放在同一文件夹，且文件名正确。');
+        handleVideoError(error);
       }
+    }
+
+    // 统一处理视频错误
+    function handleVideoError(error) {
+      console.error('视频播放失败:', error);
+      videoLoader.classList.add('hidden');
+      
+      // 获取详细错误信息
+      let errorMessage = '视频加载失败\n\n';
+      if (player.error) {
+        switch (player.error.code) {
+          case player.error.MEDIA_ERR_ABORTED:
+            errorMessage += '视频加载被取消';
+            break;
+          case player.error.MEDIA_ERR_NETWORK:
+            errorMessage += '网络错误，请检查网络连接和视频文件路径';
+            break;
+          case player.error.MEDIA_ERR_DECODE:
+            errorMessage += '视频解码错误，请确认视频格式为MP4';
+            break;
+          case player.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+            errorMessage += '不支持的视频格式，请确保使用MP4格式';
+            break;
+          default:
+            errorMessage += '未知错误: ' + player.error.code;
+        }
+      } else {
+        errorMessage += error.message || '未知错误';
+      }
+      
+      // 显示错误详情
+      alert(errorMessage);
     }
 
     closeVideo.addEventListener('click', function() {
       player.pause();
       player.src = '';
+      player.removeEventListener('loadedmetadata', null);
+      player.removeEventListener('error', handleVideoError);
       videoModal.classList.add('hidden');
       document.body.style.overflow = '';
     });
 
     videoModal.addEventListener('click', function(e) {
       if (e.target === videoModal) {
-        player.pause();
-        player.src = '';
-        videoModal.classList.add('hidden');
-        document.body.style.overflow = '';
+        closeVideo.click(); // 使用已有的关闭逻辑
       }
     });
 
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape' && !videoModal.classList.contains('hidden')) {
-        player.pause();
-        player.src = '';
-        videoModal.classList.add('hidden');
-        document.body.style.overflow = '';
+        closeVideo.click(); // 使用已有的关闭逻辑
       }
     });
   </script>
