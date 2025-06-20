@@ -153,12 +153,12 @@
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- 左侧视频：无畏_1（直接放在同级目录，无videos文件夹） -->
+          <!-- 左侧视频：无畏_1（直接放在同级目录） -->
           <div class="bg-white rounded-xl overflow-hidden shadow-md card-hover cute-shadow">
             <div class="relative">
               <img src="13.jpg" alt="无畏高光时刻" class="video-cover">
               <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">05:32</div>
-              <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 cursor-pointer" onclick="playVideo('无畏_1.mp4')">
+              <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 cursor-pointer" onclick="playVideo('./无畏_1.mp4')">
                 <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl">
                   <i class="fa fa-play"></i>
                 </div>
@@ -174,12 +174,12 @@
             </div>
           </div>
           
-          <!-- 右侧视频：无畏_2（直接放在同级目录，无videos文件夹） -->
+          <!-- 右侧视频：无畏_2（直接放在同级目录） -->
           <div class="bg-white rounded-xl overflow-hidden shadow-md card-hover cute-shadow">
             <div class="relative">
               <img src="14.jpg" alt="无畏采访" class="video-cover">
               <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">12:45</div>
-              <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 cursor-pointer" onclick="playVideo('无畏_2.mp4')">
+              <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 cursor-pointer" onclick="playVideo('./无畏_2.mp4')">
                 <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl">
                   <i class="fa fa-play"></i>
                 </div>
@@ -216,7 +216,7 @@
       </button>
       <div class="aspect-video bg-black rounded-lg overflow-hidden">
         <video id="player" controls class="w-full h-full">
-          您的浏览器不支持视频播放
+          您的浏览器不支持视频播放，请确保视频文件格式为MP4且路径正确。
         </video>
       </div>
     </div>
@@ -261,20 +261,27 @@
       });
     });
 
-    // 视频播放功能
+    // 视频播放功能（增强路径解析）
     const videoModal = document.getElementById('videoModal');
     const player = document.getElementById('player');
     const closeVideo = document.getElementById('closeVideo');
 
     function playVideo(videoPath) {
-      player.src = videoPath; // 直接使用文件名（与HTML同级）
-      player.load();
-      player.play().catch(e => {
-        console.error("视频播放失败:", e);
-        alert("视频加载失败，请检查路径或文件是否正常。");
-      });
-      videoModal.classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
+      try {
+        // 显示加载状态（可选）
+        player.src = videoPath;
+        player.load(); // 预加载视频
+        player.play().then(() => {
+          videoModal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+        }).catch(error => {
+          console.error('视频播放失败，可能原因：', error);
+          alert('视频加载失败，请检查：\n1. 视频文件是否与HTML在同一目录\n2. 视频格式是否为MP4\n3. 文件名是否正确（如：无畏_1.mp4）');
+        });
+      } catch (error) {
+        console.error('视频路径错误：', error);
+        alert('视频路径错误，请确保视频文件与HTML放在同一文件夹，且文件名正确。');
+      }
     }
 
     closeVideo.addEventListener('click', function() {
